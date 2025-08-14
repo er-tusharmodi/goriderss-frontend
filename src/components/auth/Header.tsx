@@ -30,29 +30,6 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            {[
-              { label: 'Features', href: '#features' },
-              { label: 'How it works', href: '#how' },
-              { label: 'Pricing', href: '#pricing' },
-              { label: 'FAQ', href: '#faq' },
-              { label: 'Contact', href: '#contact' },
-            ].map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className="transition-all hover:underline underline-offset-4"
-                style={{
-                  color: 'var(--ink-300)',
-                  textDecorationColor: 'var(--brand-500)',
-                }}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
           {/* CTA Buttons */}
           <div className="flex items-center gap-3">
             <Link
