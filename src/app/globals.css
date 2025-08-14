@@ -1,0 +1,54 @@
+/* 1) Tailwind v4 imports (top of file) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+/* 2) Color tokens from your image (approx) */
+@theme {
+  /* Brand */
+  --color-brand-50:  #ffe9e3;
+  --color-brand-100: #ffd3c7;
+  --color-brand-200: #ffb39e;
+  --color-brand-300: #ff9477;
+  --color-brand-400: #ff7551;
+  --color-brand-500: #ef552c;
+  --color-brand-600: #d94d28;
+  --color-brand-700: #b23e20;
+  --color-brand-800: #8c3119;
+  --color-brand-900: #732913;
+
+  /* Ink */
+  --color-ink-900: #1c2530;
+  --color-ink-800: #242e3d;
+  --color-ink-700: #2d3a4b;
+  --color-ink-600: #3a4a5f;
+  --color-ink-500: #51667f;
+  --color-ink-400: #8fa2b8;
+  --color-ink-300: #c3ceda;
+  --color-ink-200: #dbe3ea;
+  --color-ink-100: #eef3f6;
+
+  /* Surfaces / text on light */
+  --color-surface-200: #E1E1E1; /* bottom-left grey surface */
+  --color-surface-50:  #F4F5F6; /* bottom-middle near-white */
+
+  /* Helpful text shades */
+  --color-ink-200: #E6EBF1;   /* light text on dark */
+  --color-ink-300: #C7D0DB;   /* muted text on dark */
+  --color-ink-400: #9AA7B5;   /* secondary text on dark */
+    /* Box Shadow */
+  --shadow-glow: 0 0 0 6px rgba(255,106,22,0.10);
+  
+  --font-sans: var(--font-sans);
+}
+
+/* Optional: underline utility you asked for */
+@layer utilities {
+  .link-underline {
+    background-size: 0 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size .2s ease;
+  }
+  .link-underline:hover { background-size: 100% 2px; }
+}
