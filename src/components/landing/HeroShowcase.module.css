@@ -1,0 +1,76 @@
+/* ===== keyframes (unique, global-safe names) ===== */
+@keyframes heroVibeA {
+  0% { transform: translate(0,0) }
+  25% { transform: translate(12px,-6px) } /* debug: बड़ा; बाद में 2px/-1px कर देना */
+  50% { transform: translate(0,10px) }
+  75% { transform: translate(-12px,0) }
+  100% { transform: translate(0,0) }
+}
+@keyframes heroVibeB {
+  0% { transform: translate(0,0) }
+  20% { transform: translate(-10px,8px) }
+  50% { transform: translate(12px,0) }
+  80% { transform: translate(0,-10px) }
+  100% { transform: translate(0,0) }
+}
+@keyframes heroFadeUp { from {opacity:0; transform: translateY(10px)} to {opacity:1; transform: translateY(0)} }
+@keyframes heroDash { to { stroke-dashoffset: -420 } }
+@keyframes heroSoftPulse { 0%,100%{opacity:.95} 50%{opacity:.6} }
+@keyframes heroShimmer { 0%{transform:translateX(-100%)} 60%{transform:translateX(0%)} 100%{transform:translateX(100%)} }
+
+/* ===== classes (scoped in module) ===== */
+.vibeSlow  { animation: heroVibeA 4.5s ease-in-out infinite; will-change: transform; }
+.vibeAlt   { animation: heroVibeB 5.2s ease-in-out infinite; will-change: transform; }
+.fadeUp    { animation: heroFadeUp .6s ease forwards; }
+.dash      { animation: heroDash 12s linear infinite; }
+.softPulse { animation: heroSoftPulse 2.8s ease-in-out infinite; }
+
+/* ===== visual styles ===== */
+.card {
+  position: absolute;
+  border-radius: 16px;
+  background: color-mix(in oklab, white 9%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  box-shadow: 0 14px 40px rgba(0,0,0,.32);
+  padding: 18px;
+  display: flex; gap: 12px; align-items: flex-start;
+  isolation: isolate;
+}
+.card::before{
+  content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(239,85,44,.35));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; opacity: .35; pointer-events: none;
+}
+.card::after{
+  content: ""; position: absolute; inset: -22px; border-radius: 22px;
+  background: radial-gradient(90px 40px at 18% 20%, rgba(239,85,44,.22), transparent 70%);
+  z-index: -1; filter: blur(8px); opacity: .9;
+}
+.badge{
+  display: grid; place-items: center; height: 36px; width: 36px;
+  border-radius: 12px; color: white; border: 1px solid rgba(255,255,255,.16);
+  background: linear-gradient(135deg, rgba(239,85,44,.22), rgba(255,255,255,.08));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* chips */
+.chip{
+  position: absolute; border-radius: 999px; padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,.17);
+  background: color-mix(in oklab, white 8%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: rgba(255,255,255,.95); font-size: 12px;
+  display: flex; gap: 6px; align-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,.28);
+}
+
+/* progress bar shine */
+.progress { position: relative; overflow: hidden; }
+.progress::after{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: translateX(-100%); animation: heroShimmer 2.6s ease-in-out infinite;
+}

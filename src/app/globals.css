@@ -51,4 +51,15 @@
     transition: background-size .2s ease;
   }
   .link-underline:hover { background-size: 100% 2px; }
+
+  @keyframes dash { to { stroke-dashoffset: -400; } }
+  .animate-dash { animation: dash 10s linear infinite; }
+
+  @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .animate-sweep { animation: sweep 12s linear infinite; }
+
+  @keyframes float-slow {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-6px) }
+  }
 }

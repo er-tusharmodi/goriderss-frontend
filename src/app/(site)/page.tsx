@@ -1,63 +1,83 @@
 'use client'
 
-import React from 'react'
+import React from 'react';
+import Link from "next/link";
+
+import HeroRightRadar from "@/components/landing/HeroRightRadar";
+import HeroRightShowcaseAnimated from "@/components/landing/HeroRightShowcaseAnimated";
 
 export default function HomePage() {
   return (
     <main>
       {/* ====== HERO ====== */}
-      <section className="relative overflow-hidden bg-ink-900 bg-cover bg-center inset-0 -z-10"
+      <section
+        className="relative overflow-hidden"
         style={{
+          // अगर parent पर already bg लगा है तो ये style हटा दो
           backgroundImage: "url('/assets/headerBanner.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           backgroundColor: "#0f172a",
-        }}>
-              <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,106,22,0.15),_transparent_50%),_radial-gradient(ellipse_at_bottom_left,_rgba(255,106,22,0.10),_transparent_45%)]"></div>
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
-                <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 items-center">
-                  
-                  {/* Left content */}
-                  <div>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-ink-300">
-                      Built for Riders • Route • Trips • SOS
-                    </span>
-                    <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                      Ride. Connect. <span className="text-brand-500">Explore.</span>
-                    </h1>
-                    <p className="mt-5 text-lg text-ink-300">
-                      GoRiderss is a biker-first platform for <span className="text-white">route sharing</span>, 
-                      <span className="text-white"> trip management</span>, 
-                      <span className="text-white"> rider community</span>, and 
-                      <span className="text-white"> safety</span>. Plan group rides, split expenses, find verified helper shops, 
-                      and stay connected—on and off the road.
-                    </p>
+        }}
+      >
+        {/* हल्का dark overlay ताकि text readable रहे */}
+        <div className="absolute inset-0 bg-ink-900/40 pointer-events-none" />
 
-                    <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                      <a href="#cta" className="inline-flex items-center justify-center rounded-xl bg-brand-500 hover:bg-brand-600 px-6 py-3 text-white font-medium shadow-glow transition-transform duration-200 hover:scale-[1.02] active:scale-95">
-                        Create Your First Trip
-                      </a>
-                      <a href="#features" className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-6 py-3 text-white font-medium transition-transform duration-200 hover:scale-[1.02] active:scale-95">
-                        See Features
-                      </a>
-                    </div>
-
-                    <div className="mt-8 flex items-center gap-6 text-sm text-ink-400">
-                      <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-brand-500"></span> Live SOS</div>
-                      <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-brand-500"></span> Offline-ready</div>
-                      <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-brand-500"></span> Privacy-first</div>
-                    </div>
-                  </div>
-
-                  {/* Right mockup image */}
-                  <div className="relative flex justify-center items-center">
-                    <img
-                      src="/assets/heroMockup.webp"
-                      alt="GoRiderss App Mockup"
-                      className="w-full max-w-[800px] max-h-[800px] h-auto object-contain"
-                    />
-                  </div>
-
-                </div>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-28">
+          <div className="grid lg:grid-cols-12 gap-10 items-center">
+            {/* LEFT: copy + cta */}
+            <div className="lg:col-span-6">
+              <div className="inline-flex items-center gap-2 text-xs rounded-full bg-ink-800/60 border border-white/10 px-3 py-1 mb-4">
+                Built for Riders • Route • Trips • SOS
               </div>
+
+              <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight text-white">
+                Ride. Connect.<br />
+                <span className="text-brand-500">Explore.</span>
+              </h1>
+
+              <p className="mt-4 text-ink-200/80 max-w-xl">
+                GoRiderss is a biker‑first platform for route sharing, trip
+                management, rider community, and safety. Plan group rides, split
+                expenses, find verified helper shops, and stay connected—on and off
+                the road.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/get-started"
+                  className="rounded-xl bg-brand-500 text-white px-5 py-3 font-semibold shadow-lg hover:opacity-90"
+                >
+                  Create Your First Trip
+                </Link>
+                <Link
+                  href="/#features"
+                  className="rounded-xl bg-ink-800/70 px-5 py-3 font-semibold hover:bg-ink-700 text-white"
+                >
+                  See Features
+                </Link>
+              </div>
+
+              <div className="mt-6 flex items-center gap-6 text-sm text-ink-200/70">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-brand-500"></span> Live SOS
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-brand-500"></span> Offline‑ready
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-brand-500"></span> Privacy‑first
+                </span>
+              </div>
+            </div>
+
+            {/* RIGHT: floating glass cards (phones की जगह) */}
+            <div className="lg:col-span-6 hidden lg:block">
+              
+              <HeroRightShowcaseAnimated />
+            </div>
+          </div>
+        </div>
       </section>
       {/* ====== WHY GORIDERSS ====== */}
       <section className="py-16 border-t border-white/5 bg-ink-800 flex items-center" id="why">
@@ -217,19 +237,8 @@ export default function HomePage() {
             </div>
 
             {/* Right side – image + tags */}
-            <div className="rounded-3xl border border-white/10 bg-ink-700 p-6">
-              <div className="aspect-[16/10] rounded-2xl border border-white/10 overflow-hidden">
-                <img
-                  src="/assets/howItWork.webp"
-                  alt="GoRiderss App Preview"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="mt-4 grid sm:grid-cols-3 gap-3 text-xs text-ink-300">
-                <div className="rounded-xl bg-white/5 p-3 text-center">Admin-only broadcast</div>
-                <div className="rounded-xl bg-white/5 p-3 text-center">Member badges</div>
-                <div className="rounded-xl bg-white/5 p-3 text-center">Offline cache</div>
-              </div>
+            <div className="">
+              <HeroRightRadar />
             </div>
 
           </div>
