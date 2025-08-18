@@ -42,6 +42,7 @@
   content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1px;
   background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(239,85,44,.35));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude; opacity: .35; pointer-events: none;
 }
 .card::after{
