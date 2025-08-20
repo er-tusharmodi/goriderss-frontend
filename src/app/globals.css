@@ -4,7 +4,7 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 /* 2) Color tokens from your image (approx) */
-:root {
+@theme {
   /* Brand */
   --color-brand-50:  #ffe9e3;
   --color-brand-100: #ffd3c7;
@@ -36,9 +36,9 @@
   --color-ink-200: #E6EBF1;   /* light text on dark */
   --color-ink-300: #C7D0DB;   /* muted text on dark */
   --color-ink-400: #9AA7B5;   /* secondary text on dark */
-  /* Box Shadow */
+    /* Box Shadow */
   --shadow-glow: 0 0 0 6px rgba(255,106,22,0.10);
-
+  
   --font-sans: var(--font-sans);
 }
 
@@ -150,15 +150,7 @@
   }
 
   .field {
-    width: 100%;
-    background: transparent;
-    border-radius: 0.75rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    outline: none;
-    transition: box-shadow .15s, border-color .15s;
+    @apply w-full bg-transparent rounded-xl px-3 py-2 outline-none transition;
     border: 1px solid var(--border);
   }
   .field:focus {
@@ -168,15 +160,7 @@
   .label { font-size: .875rem; }
 
   .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    border-radius: 9999px;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-top: 0.125rem;
-    padding-bottom: 0.125rem;
-    font-size: 0.75rem;
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs;
     background: color-mix(in srgb, #fff 10%, transparent);
   }
 

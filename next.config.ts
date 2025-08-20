@@ -1,24 +1,21 @@
-import type { NextConfig } from "next";
+// next.config.mjs
+/** @type {import('next').NextConfig} */
+const API_BASE = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION?.replace(/\/$/, '');
 
-const nextConfig: NextConfig = {
-  images: {
-    domains: [
-      "encrypted-tbn0.gstatic.com",
-      "americanathleticshoe.com",
-      "ik.imagekit.io",
-      "cdn.pixabay.com",
-      "i.pravatar.cc",
-      "api.goriderss.app",
-    ],
-  },
-
+const nextConfig = {
+  // other next config...
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",             // frontend pe call karoge `/api/...`
-        destination: process.env.PROJECT_FINAL_API_URL+"/:path*", // backend ka actual URL (port change karo apne hisab se)
-      },
-    ];
+    // Only add the rule when API_BASE is a valid absolute URL
+    if (API_BASE && /^https?:\/\//.test(API_BASE)) {
+      return [
+        {
+          source: '/api/:path*',
+          destination: `${API_BASE}/:path*`, // e.g. https://api.goriderss.app/api/v1/:path*
+        },
+      ];
+    }
+    // No rewrite in production if the env var is missing/invalid
+    return [];
   },
 };
 
