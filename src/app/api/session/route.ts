@@ -1,63 +1,38 @@
-// app/api/session/route.ts
 import { NextResponse } from 'next/server';
 
-type Body = {
-  accessToken: string;
-  refreshToken: string;
-  user?: any;
-};
-
 const isProd = process.env.NODE_ENV === 'production';
-
-// 7 days (seconds)
-const ACCESS_MAX_AGE = 60 * 60 * 24 * 7;
-// 30 days (seconds) – example
-const REFRESH_MAX_AGE = 60 * 60 * 24 * 30;
+const ACCESS_MAX_AGE = 60 * 60 * 24 * 7;   // 7d
+const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30d
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Body;
-    if (!body?.accessToken || !body?.refreshToken) {
+    const body = await req.json();
+    const { accessToken, refreshToken, user } = body || {};
+
+    if (!accessToken || !refreshToken) {
       return NextResponse.json({ success: false, message: 'Missing tokens' }, { status: 400 });
     }
 
     const res = NextResponse.json({ success: true });
 
-    // HTTP-only auth cookies (middleware/server can read, JS cannot)
-    res.cookies.set('gr_at', body.accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-      maxAge: ACCESS_MAX_AGE,
+    // cookie names aligned with middleware
+    res.cookies.set('gr_at', accessToken, {
+      httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: ACCESS_MAX_AGE,
+    });
+    res.cookies.set('gr_rt', refreshToken, {
+      httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: REFRESH_MAX_AGE,
     });
 
-    res.cookies.set('gr_rt', body.refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-      maxAge: REFRESH_MAX_AGE,
-    });
-
-    // (Optional) readable cookie for quick UI (non-HttpOnly)
-    if (body.user?.fullName) {
-      res.cookies.set('gr_name', body.user.fullName, {
-        httpOnly: false,
-        sameSite: 'lax',
-        secure: isProd,
-        path: '/',
-        maxAge: ACCESS_MAX_AGE,
+    // readable (non-HttpOnly) user cookie — JSON encoded
+    if (user) {
+      res.cookies.set('gr_user', encodeURIComponent(JSON.stringify(user)), {
+        httpOnly: false, sameSite: 'lax', secure: isProd, path: '/', maxAge: ACCESS_MAX_AGE,
       });
     }
 
-    // NOTE: If your frontend is on a custom subdomain and you want these
-    // cookies to be visible across subdomains, add: domain: '.goriderss.app'
-    // Example:
-    // res.cookies.set('gr_at', body.accessToken, { ..., domain: '.goriderss.app' })
-
     return res;
   } catch (e: any) {
+    console.error('SESSION_ROUTE_ERR:', e);
     return NextResponse.json({ success: false, message: e?.message || 'Failed' }, { status: 500 });
   }
 }

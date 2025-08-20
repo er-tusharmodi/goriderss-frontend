@@ -6,7 +6,7 @@ export default function CreateBox() {
   return (
     <div className="bg-card border border-border rounded-2xl p-4">
       <div className="flex items-center gap-3">
-        <img src="https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png" className="h-10 w-10 rounded-full" alt="me"/>
+        <img src="/assets/dummyUser.png" className="h-10 w-10 rounded-full" alt="me"/>
         <input placeholder="What's on your mind, TuSharthi?" className="flex-1 bg-transparent border border-border rounded-xl px-4 py-2 outline-none"/>
         <button className="bg-accent text-white text-sm font-medium px-4 py-2 rounded-xl whitespace-nowrap" onClick={openCreate}>Create</button>
       </div>

@@ -4,13 +4,19 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION;
+const isProd = process.env.NODE_ENV === 'production';
+
+// Dev → proxy (/api/...), Prod → absolute base from env
+const LOGIN_ENDPOINT = API_URL
+  ? `${API_URL}/auth/login-user`
+  : `/api/auth/login-user`;
 
 type LoginApiOk = {
   statusCode: number;
   message: string;
   success: boolean;
   data?: {
-    user?: { _id: string; fullName?: string; email?: string; mobileNumber?: string; avatarFileId?: string };
+    user?: { _id: string; fullName?: string; email?: string; username?: string; avatarFileId?: string; address?: string };
     accessToken?: string;
     refreshToken?: string;
   };
@@ -20,44 +26,54 @@ export default function LoginPage() {
   const router = useRouter();
   const qs = useSearchParams();
 
-  const [mobile, setMobile] = useState('');
+  const [identifier, setIdentifier] = useState(''); // email or username
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState<string | null>(null);
   const [okMsg, setOkMsg]       = useState<string | null>(null);
 
-  function normalizeMobile(v: string) {
-    return v.replace(/\D+/g, '').slice(0, 10);
-  }
+  const inputBase =
+    'w-full rounded-full border border-white/20 bg-transparent py-2.5 pl-10 pr-4 placeholder-white/50 focus:outline-none focus:border-[#F15A2B]';
+
+  const isEmail = (v: string) => /\S+@\S+\.\S+/.test(v);
+  const isUsername = (v: string) => /^[a-zA-Z0-9._-]{3,}$/.test(v);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
+
     setError(null);
     setOkMsg(null);
 
-    const m = normalizeMobile(mobile);
-    if (m.length !== 10) return setError('Please enter a valid 10-digit mobile number.');
-    if (!password)       return setError('Password is required.');
+    if (!identifier) { setError('Please enter your email or username.'); return; }
+    if (!password)   { setError('Password is required.'); return; }
+
+    // Build payload that backend understands:
+    // if looks like email → { email, password }
+    // else → { username, password }
+    let body: Record<string, string> = { password };
+    if (isEmail(identifier)) body.email = identifier.trim();
+    else if (isUsername(identifier)) body.userName = identifier.trim();
+    else { setError('Enter a valid email or username.'); return; }
 
     try {
       setLoading(true);
 
-      // 1) backend login
-      const res = await fetch(`${API_URL}/auth/login-user`, {
+      const res = await fetch(LOGIN_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // अगर तुम्हारा backend cookie set नहीं करता और सिर्फ JSON देता है,
-        // तब भी हम नीचे /api/session से httpOnly cookie set करेंगे.
-        body: JSON.stringify({ mobileNumber: m, password }),
+        body: JSON.stringify(body),
+      }).catch(() => {
+        throw new Error('Could not reach server. Check API URL / rewrites.');
       });
 
       let data: any = null;
-      try { data = await res.json(); } catch {}
+      try { data = await res.json(); } catch { /* non-json */ }
+
       if (!res.ok || !data?.success) {
         const msg =
           data?.message ||
-          (res.status === 401 ? 'Invalid mobile or password.' :
+          (res.status === 401 ? 'Invalid credentials.' :
            res.status === 422 ? 'Please check your inputs.' :
            res.status === 500 ? 'Server error. Please try again.' :
            `Login failed (HTTP ${res.status}).`);
@@ -69,37 +85,32 @@ export default function LoginPage() {
       const refreshToken = d?.data?.refreshToken;
       const user         = d?.data?.user;
 
-      if (!accessToken || !refreshToken) {
-        throw new Error('Missing tokens from server.');
-      }
+      if (!accessToken || !refreshToken) throw new Error('Missing tokens from server.');
 
-      // 2) httpOnly cookies set via Next.js route
+      // set httpOnly cookies for middleware guard
       const sess = await fetch('/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ accessToken, refreshToken, user }),
       });
+
       if (!sess.ok) {
-        const msg = await sess.text().catch(() => 'Session set failed');
+        const msg = await sess.text().catch(() => '');
         throw new Error(msg || 'Session set failed');
       }
 
-      // 3) success UI + redirect
-      const name = user?.fullName || 'Rider';
+      const name = user?.fullName || user?.username;
       setOkMsg(`${d.message || 'Logged in'} — Welcome, ${name}!`);
-      console.log(document.cookie);
-      //const next = qs.get('next') || '/dashboard';
-      //setTimeout(() => router.replace(next), 700);
+
+      const next = qs.get('next') || '/dashboard';
+      setTimeout(() => router.replace(next), 700);
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   }
-
-  const inputBase =
-    'w-full rounded-full border border-white/20 bg-transparent py-2.5 pl-10 pr-4 placeholder-white/50 focus:outline-none focus:border-[#F15A2B]';
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -108,24 +119,23 @@ export default function LoginPage() {
         <p className="mt-1 text-white/70">Everything starts from here</p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-3" aria-busy={loading}>
-          {/* Mobile Number */}
+          {/* Email / Username */}
           <div className="relative">
             <input
-              type="tel"
-              inputMode="numeric"
-              placeholder="Mobile number"
+              type="text"
+              placeholder="Email or Username"
               className={`${inputBase} ${loading ? 'opacity-60 pointer-events-none' : ''}`}
-              value={mobile}
-              onChange={(e) => setMobile(normalizeMobile(e.target.value))}
-              autoComplete="tel"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              autoComplete="username"
               disabled={loading}
               required
             />
             <svg xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/50"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M2 7h20M2 12h20M2 17h20" />
+                d="M16 11c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4 4 1.79 4 4zM4 20c0-3.314 2.686-6 6-6h4c3.314 0 6 2.686 6 6" />
             </svg>
           </div>
 
@@ -144,10 +154,9 @@ export default function LoginPage() {
             <svg xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/50"
               fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M12 15c1.656 0 3-1.344 3-3s-1.344-3-3-3s-3 1.344-3 3s1.344 3 3 3z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7c-4.478 0-8.268-2.943-9.542-7z" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" fill="none"
+                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
             </svg>
             <a
               href="/forgot"

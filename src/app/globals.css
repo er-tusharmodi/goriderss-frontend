@@ -82,6 +82,7 @@
   .text-textmuted {
     color: var(--color-text-muted);
   }
+  
 }
 
 @layer base {
@@ -101,6 +102,17 @@
 
     /* shadows */
     --shadow-soft: 0 6px 24px rgba(0,0,0,0.25);
+
+
+    --slatebg: #1F2933;
+    --card:    #253341;
+    --border:  #3B4753;
+    --textmuted:#9CA3AF;
+    --accent:  #F25C2A;
+
+    --shadow-soft: 0 6px 24px rgba(0,0,0,0.25);
+    --radius-xl: 2rem; /* 16px */
+    --ring-accent: 0 0 0 3px rgba(242,92,42,.35);
   }
 
   /* make sure body actually uses theme bg + text */
@@ -117,5 +129,74 @@
   .text-textmuted{ color:           var(--color-text-muted); }
   .bg-accent    { background-color: var(--color-accent); }
   .shadow-soft  { box-shadow: var(--shadow-soft); }
-  
+
+
+  .bg-slatebg   { background-color: var(--slatebg) !important; }
+  .bg-card      { background-color: var(--card) !important; }
+  .border-border{ border-color: var(--border) !important; }
+  .text-textmuted { color: var(--textmuted) !important; }
+  .bg-accent    { background-color: var(--accent) !important; }
+  .shadow-soft  { box-shadow: var(--shadow-soft) !important; }
+}
+
+@layer components {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .menu-anim { animation: pop .18s ease-out; transform-origin: top right; }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(.97) translateY(-2px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .field {
+    @apply w-full bg-transparent rounded-xl px-3 py-2 outline-none transition;
+    border: 1px solid var(--border);
+  }
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: var(--ring-accent);
+  }
+  .label { font-size: .875rem; }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs;
+    background: color-mix(in srgb, #fff 10%, transparent);
+  }
+
+/* map to utility-like classes used in markup */
+.bg-slatebg{ background-color: var(--slatebg); }
+.bg-card{ background-color: var(--card); }
+.border-border{ border-color: var(--border); }
+.text-textmuted{ color: var(--textmuted); }
+.bg-accent{ background-color: var(--accent); }
+
+/* chips */
+.chip{
+  display:inline-block;
+  border-radius:9999px;
+  background:rgba(255,255,255,.06);
+  padding:.15rem .5rem;
+  font-size:.75rem;
+}
+
+/* helpers from provided HTML */
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
+.menu-anim{ animation:pop .18s ease-out; transform-origin:top right }
+@keyframes pop{ from{opacity:0;transform:scale(.97) translateY(-2px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.field{ width:100%; background:transparent; border:1px solid var(--border); border-radius:.75rem; padding:.5rem .75rem; outline:none; transition:box-shadow .15s,border-color .15s }
+.field:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(242,92,42,.35) }
+.field::placeholder{ color:var(--textmuted) }
+.label{ font-size:.875rem }
+
+table.cp{ width:100%; border-collapse:separate; border-spacing:0 .5rem }
+table.cp td,table.cp th{ padding:.6rem .75rem }
+table.cp thead th{ color:var(--textmuted); font-weight:600; text-transform:uppercase; font-size:.7rem; letter-spacing:.04em }
+table.cp tbody tr{ background:var(--card); border:1px solid var(--border); border-radius:12px }
+table.cp tbody tr>td:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px }
+table.cp tbody tr>td:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px }
+button {cursor: pointer;}
+
 }

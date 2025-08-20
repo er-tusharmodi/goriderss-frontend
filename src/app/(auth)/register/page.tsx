@@ -10,6 +10,7 @@ export default function RegisterPage() {
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail]       = useState('');
+  const [userName, setUserName]       = useState('');
   const [mobile, setMobile]     = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm]   = useState('');
@@ -35,6 +36,7 @@ export default function RegisterPage() {
     const m = normalizeMobile(mobile);
 
     if (!fullName.trim()) { setError('Please enter your full name.'); return; }
+    if (!userName.trim()) { setError('Please enter your username.'); return; }
     if (!email.trim())     { setError('Please enter your email address.'); return; }
     if (m.length !== 10)   { setError('Please enter a valid 10-digit mobile number.'); return; }
     if (!password)         { setError('Password is required.'); return; }
@@ -49,6 +51,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           email: email.trim(),
           fullName: fullName.trim(),
+          userName: userName.trim(),
           mobileNumber: m,
           hashedPassword: password,
         }),
@@ -101,6 +104,21 @@ export default function RegisterPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="8" r="4" />
               <path d="M6 20a6 6 0 0 1 12 0" />
+            </svg>
+          </div>
+          {/* Username */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Username"
+              className={`${inputBase} ${loading ? 'opacity-60 pointer-events-none' : ''}`}
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              disabled={loading}
+              required
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zM9.5 8a2.5 2.5 0 1 1 2.5 2.5A2.5 2.5 0 0 1 9.5 8zm3.5 10a7.5 7.5 0 0 1-7.5-7.5h15A7.5 7.5 0 0 1 13 18z" />
             </svg>
           </div>
 

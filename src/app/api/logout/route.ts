@@ -7,7 +7,7 @@ export async function GET() {
   // Expire now
   res.cookies.set('gr_at', '', { path: '/', expires: new Date(0) });
   res.cookies.set('gr_rt', '', { path: '/', expires: new Date(0) });
-  res.cookies.set('gr_name', '', { path: '/', expires: new Date(0) });
+  res.cookies.set('gr_user', '', { path: '/', expires: new Date(0) });
 
   return res;
 }
