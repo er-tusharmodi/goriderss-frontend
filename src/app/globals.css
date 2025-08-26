@@ -113,6 +113,12 @@
     --shadow-soft: 0 6px 24px rgba(0,0,0,0.25);
     --radius-xl: 2rem; /* 16px */
     --ring-accent: 0 0 0 3px rgba(242,92,42,.35);
+
+    --slatebg: #1F2933;
+    --card: #253341;
+    --border: #3B4753;
+    --textmuted: #9CA3AF;
+    --accent: #F25C2A;
   }
 
   /* make sure body actually uses theme bg + text */
@@ -120,6 +126,7 @@
     background-color: var(--color-bg);
     color: var(--color-text);
   }
+  
 }
 /* utility shortcuts same as we used in components */
 @layer utilities {
@@ -199,4 +206,115 @@ table.cp tbody tr>td:first-child{ border-top-left-radius:12px; border-bottom-lef
 table.cp tbody tr>td:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px }
 button {cursor: pointer;}
 
+
+
+.bg-slatebg { background-color: var(--slatebg) !important; }
+.bg-card    { background-color: var(--card) !important; }
+.border-border { border-color: var(--border) !important; }
+.text-textmuted { color: var(--textmuted) !important; }
+.bg-accent { background-color: var(--accent) !important; }
+.accent-accent { accent-color: var(--accent); }
+
+/* util */
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+
+/* fields */
+.field{width:100%;background:transparent;border:1px solid var(--border);border-radius:0.75rem;padding:.5rem .75rem;outline:none;transition:box-shadow .15s,border-color .15s}
+.field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(242,92,42,.35)}
+.field::placeholder{color:var(--textmuted)}
+.label{font-size:.875rem}
+
+/* table (cards) */
+table.cp{width:100%;border-collapse:separate;border-spacing:0 .5rem}
+table.cp td,table.cp th{padding:.6rem .75rem}
+table.cp thead th{color:var(--textmuted);font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.04em}
+table.cp tbody tr{background:var(--card);border:1px solid var(--border);border-radius:12px}
+table.cp tbody tr>td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
+table.cp tbody tr>td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
+
+/* chips */
+.chip{display:inline-block;padding:.25rem .6rem;border-radius:9999px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:.75rem;color:white}
+
+:root {
+  --slatebg:#1F2933; --card:#253341; --border:#3B4753; --textmuted:#9CA3AF; --accent:#F25C2A;
+}
+.bg-slatebg{background-color:var(--slatebg)!important}
+.bg-card{background-color:var(--card)!important}
+.border-border{border-color:var(--border)!important}
+.text-textmuted{color:var(--textmuted)!important}
+.bg-accent{background-color:var(--accent)!important}
+.accent-accent{accent-color:var(--accent)}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+.field{width:100%;background:transparent;border:1px solid var(--border);border-radius:.75rem;padding:.5rem .75rem;outline:0;transition:box-shadow .15s,border-color .15s}
+.field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(242,92,42,.35)}
+.field::placeholder{color:var(--textmuted)}
+.label{font-size:.875rem}
+table.cp{width:100%;border-collapse:separate;border-spacing:0 .5rem}
+table.cp td,table.cp th{padding:.6rem .75rem}
+table.cp thead th{color:var(--textmuted);font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.04em}
+table.cp tbody tr{background:var(--card);border:1px solid var(--border);border-radius:12px}
+table.cp tbody tr>td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
+table.cp tbody tr>td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
+
+/* Scrollbar hide utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Reusable form + chips */
+@layer components {
+
+  .label { @apply text-sm; }
+  .chip  { @apply text-xs bg-white/10 rounded-full px-2.5 py-0.5; }
+  .btn   { @apply rounded-2xl px-4 py-2; }
+}
+
+/* Small pop animation for menus */
+@keyframes pop {
+  from { opacity: 0; transform: scale(.98) translateY(-2px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.menu { animation: pop .16s ease-out; transform-origin: top right; }
+
+/* (Create Trip) checkpoints table styling */
+table.cp { width: 100%; border-collapse: separate; border-spacing: 0 .5rem; }
+table.cp td, table.cp th { padding: .6rem .75rem; }
+table.cp thead th {
+  color: #9CA3AF; font-weight: 600; text-transform: uppercase;
+  font-size: .7rem; letter-spacing: .04em;
+}
+table.cp tbody tr { background: #253341; border: 1px solid #3B4753; border-radius: 12px; }
+table.cp tbody tr > td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+table.cp tbody tr > td:last-child  { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+/* GoRiderss – Expenses page shared UI tokens (original styles) */
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+
+.field{width:100%;background:transparent;border:1px solid #3B4753;border-radius:0.9rem;padding:.6rem .85rem;outline:none;transition:box-shadow .15s,border-color .15s}
+.field:focus{border-color:#F25C2A;box-shadow:0 0 0 3px rgba(242,92,42,.35)}
+
+.label{font-size:.9rem}
+
+.chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.06);border:1px solid #3B4753;border-radius:9999px;padding:.2rem .6rem;font-size:.78rem;white-space:nowrap}
+
+.btn{border-radius:1rem;padding:.6rem .95rem}
+.btn-primary{background:#F25C2A;color:#fff}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid #3B4753;color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.09)}
+
+.stat{background:rgba(255,255,255,.06);border:1px solid #3B4753;border-radius:1rem;padding:.65rem .8rem;text-align:center}
+.stat-num{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-variant-numeric:tabular-nums}
+
+.pill{border:1px solid #3B4753;border-radius:9999px;padding:.35rem .7rem}
+.toggle:checked{accent-color:#F25C2A}
+
+.amount-badge{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row:hover{background-color:rgba(255,255,255,.04)}
+.icon{width:18px;height:18px}
+#rows > * + * {
+  border-top: 0.5px solid rgba(255,255,255,.12) !important;
+}
 }

@@ -1,38 +1,49 @@
+// app/api/session/route.ts
 import { NextResponse } from 'next/server';
 
 const isProd = process.env.NODE_ENV === 'production';
-const ACCESS_MAX_AGE = 60 * 60 * 24 * 7;   // 7d
-const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30d
+const cookieBase = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: isProd,
+  path: '/',
+};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { accessToken, refreshToken, user } = body || {};
+    const { accessToken, refreshToken, user } = await req.json();
 
     if (!accessToken || !refreshToken) {
-      return NextResponse.json({ success: false, message: 'Missing tokens' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Missing tokens' },
+        { status: 400 }
+      );
     }
 
     const res = NextResponse.json({ success: true });
 
-    // cookie names aligned with middleware
-    res.cookies.set('gr_at', accessToken, {
-      httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: ACCESS_MAX_AGE,
+    res.cookies.set('gr_at', accessToken, { ...cookieBase, maxAge: 60 * 60 * 6 });      // 6h
+    res.cookies.set('gr_rt', refreshToken, { ...cookieBase, maxAge: 60 * 60 * 24 * 30 }); // 30d
+    // lightweight, non-sensitive user cache (not strictly required)
+    res.cookies.set('gr_user', JSON.stringify(user ?? {}), {
+      ...cookieBase,
+      httpOnly: false, // readable by client if needed
+      maxAge: 60 * 60 * 24 * 7,
     });
-    res.cookies.set('gr_rt', refreshToken, {
-      httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: REFRESH_MAX_AGE,
-    });
-
-    // readable (non-HttpOnly) user cookie — JSON encoded
-    if (user) {
-      res.cookies.set('gr_user', encodeURIComponent(JSON.stringify(user)), {
-        httpOnly: false, sameSite: 'lax', secure: isProd, path: '/', maxAge: ACCESS_MAX_AGE,
-      });
-    }
 
     return res;
-  } catch (e: any) {
-    console.error('SESSION_ROUTE_ERR:', e);
-    return NextResponse.json({ success: false, message: e?.message || 'Failed' }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err?.message || 'Failed to set session' },
+      { status: 500 }
+    );
   }
+}
+
+export async function DELETE() {
+  const res = NextResponse.json({ success: true });
+  res.cookies.set('gr_at', '', { ...cookieBase, maxAge: 0 });
+  res.cookies.set('gr_rt', '', { ...cookieBase, maxAge: 0 });
+  res.cookies.set('gr_user', '', { ...cookieBase, httpOnly: false, maxAge: 0 });
+  return res;
 }

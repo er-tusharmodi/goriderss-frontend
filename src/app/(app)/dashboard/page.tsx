@@ -1,9 +1,9 @@
 // app/(app)/dashboard/page.tsx
 'use client';
-import StoriesStrip from './_components/StoriesStrip';
-import CreateBox from './_components/CreateBox';
-import PostCard from './_components/PostCard';
-import type { Post } from './_lib/types';
+import StoriesStrip from '../_components/StoriesStrip';
+import CreateBox from '../_components/CreateBox';
+import PostCard from '../_components/PostCard';
+import type { Post } from '../_lib/types';
 
 const DUMMY_POSTS: Post[] = [ /* …placeholder converted from your HTML… */ ];
 

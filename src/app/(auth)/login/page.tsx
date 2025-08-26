@@ -3,18 +3,10 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION;
-const isProd = process.env.NODE_ENV === 'production';
-
-// Dev → proxy (/api/...), Prod → absolute base from env
-const LOGIN_ENDPOINT = API_URL
-  ? `${API_URL}/auth/login-user`
-  : `/api/auth/login-user`;
-
 type LoginApiOk = {
-  statusCode: number;
-  message: string;
-  success: boolean;
+  statusCode?: number;
+  message?: string;
+  success?: boolean;
   data?: {
     user?: { _id: string; fullName?: string; email?: string; username?: string; avatarFileId?: string; address?: string };
     accessToken?: string;
@@ -22,21 +14,23 @@ type LoginApiOk = {
   };
 };
 
+const LOGIN_ENDPOINT = '/api/auth/login'; // <-- always hit Next API (no CORS)
+
 export default function LoginPage() {
   const router = useRouter();
   const qs = useSearchParams();
 
   const [identifier, setIdentifier] = useState(''); // email or username
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [okMsg, setOkMsg]       = useState<string | null>(null);
+  const [password, setPassword]   = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState<string | null>(null);
+  const [okMsg, setOkMsg]         = useState<string | null>(null);
 
   const inputBase =
     'w-full rounded-full border border-white/20 bg-transparent py-2.5 pl-10 pr-4 placeholder-white/50 focus:outline-none focus:border-[#F15A2B]';
 
-  const isEmail = (v: string) => /\S+@\S+\.\S+/.test(v);
-  const isUsername = (v: string) => /^[a-zA-Z0-9._-]{3,}$/.test(v);
+  const isEmail     = (v: string) => /\S+@\S+\.\S+/.test(v);
+  const isUsername  = (v: string) => /^[a-zA-Z0-9._-]{3,}$/.test(v);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,32 +39,28 @@ export default function LoginPage() {
     setError(null);
     setOkMsg(null);
 
-    if (!identifier) { setError('Please enter your email or username.'); return; }
-    if (!password)   { setError('Password is required.'); return; }
+    if (!identifier) return setError('Please enter your email or username.');
+    if (!password)   return setError('Password is required.');
 
-    // Build payload that backend understands:
-    // if looks like email → { email, password }
-    // else → { username, password }
-    let body: Record<string, string> = { password };
+    // Backend payload shape
+    const body: Record<string, string> = { password };
     if (isEmail(identifier)) body.email = identifier.trim();
     else if (isUsername(identifier)) body.userName = identifier.trim();
-    else { setError('Enter a valid email or username.'); return; }
+    else return setError('Enter a valid email or username.');
 
     try {
       setLoading(true);
 
+      // Hit Next API (server-side proxy -> backend)
       const res = await fetch(LOGIN_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(body),
-      }).catch(() => {
-        throw new Error('Could not reach server. Check API URL / rewrites.');
       });
 
-      let data: any = null;
-      try { data = await res.json(); } catch { /* non-json */ }
+      const data = (await res.json().catch(() => ({}))) as LoginApiOk;
 
-      if (!res.ok || !data?.success) {
+      if (!res.ok || data?.success === false) {
         const msg =
           data?.message ||
           (res.status === 401 ? 'Invalid credentials.' :
@@ -80,14 +70,13 @@ export default function LoginPage() {
         throw new Error(msg);
       }
 
-      const d = data as LoginApiOk;
-      const accessToken  = d?.data?.accessToken;
-      const refreshToken = d?.data?.refreshToken;
-      const user         = d?.data?.user;
+      const accessToken  = data?.data?.accessToken;
+      const refreshToken = data?.data?.refreshToken;
+      const user         = data?.data?.user;
 
       if (!accessToken || !refreshToken) throw new Error('Missing tokens from server.');
 
-      // set httpOnly cookies for middleware guard
+      // Store tokens in httpOnly cookies for the app (no alert; green banner)
       const sess = await fetch('/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,16 +84,13 @@ export default function LoginPage() {
         body: JSON.stringify({ accessToken, refreshToken, user }),
       });
 
-      if (!sess.ok) {
-        const msg = await sess.text().catch(() => '');
-        throw new Error(msg || 'Session set failed');
-      }
+      if (!sess.ok) throw new Error('Could not initialize session.');
 
-      const name = user?.fullName || user?.username;
-      setOkMsg(`${d.message || 'Logged in'} — Welcome, ${name}!`);
+      const name = user?.fullName || user?.username || 'Rider';
+      setOkMsg(`Logged in — Welcome, ${name}!`);
 
       const next = qs.get('next') || '/dashboard';
-      setTimeout(() => router.replace(next), 700);
+      setTimeout(() => router.replace(next), 600);
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please try again.');
     } finally {
@@ -168,8 +154,16 @@ export default function LoginPage() {
           </div>
 
           {/* Messages */}
-          {error && <div className="text-sm rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-red-300">{error}</div>}
-          {okMsg && <div className="text-sm rounded-md border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-emerald-300">{okMsg}</div>}
+          {error && (
+            <div className="text-sm rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-red-300">
+              {error}
+            </div>
+          )}
+          {okMsg && (
+            <div className="text-sm rounded-md border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-emerald-300">
+              {okMsg}
+            </div>
+          )}
 
           {/* Login Button */}
           <button

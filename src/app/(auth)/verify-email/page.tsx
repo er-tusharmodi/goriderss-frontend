@@ -3,20 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION;
-// अगर backend UPPERCASE enum मांगता है तो इसे 'EMAIL' कर दें
-const OTP_TYPE = 'email'; // or 'EMAIL'
+const OTP_TYPE = 'EMAIL'; // if your backend expects lowercase, change to 'email'
 
 export default function VerifyEmailPage() {
   const router = useRouter();
   const sp = useSearchParams();
   const initialEmail = sp.get('email') || '';
 
-  const [email, setEmail]     = useState(initialEmail);
-  const [otp, setOtp]         = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [okMsg, setOkMsg]     = useState<string | null>(null);
+  const [email, setEmail]       = useState(initialEmail);
+  const [otp, setOtp]           = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState<string | null>(null);
+  const [okMsg, setOkMsg]       = useState<string | null>(null);
 
   const COOLDOWN = 60;
   const [cooldown, setCooldown] = useState(0);
@@ -44,26 +42,24 @@ export default function VerifyEmailPage() {
     const e_ = email.trim();
     const o_ = normalizeOtp(otp);
 
-    if (!e_) { setError('Please enter your email.'); return; }
-    if (o_.length !== 6) { setError('Please enter the 6‑digit OTP.'); return; }
+    if (!e_)                 return setError('Please enter your email.');
+    if (o_.length !== 6)     return setError('Please enter the 6-digit OTP.');
 
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/auth/verify-otp`, {
+      const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ type: OTP_TYPE, target: e_, otp: o_ }),
       });
 
-      let data: any = null;
-      try { data = await res.json(); } catch {}
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data?.success) {
+      if (!res.ok || data?.success === false) {
         const msg =
           data?.message ||
           (res.status === 400 || res.status === 401 ? 'Invalid or expired OTP.' :
            res.status === 422 ? 'Please check your inputs.' :
-           res.status === 500 ? 'Server error. Please try again.' :
            `Verification failed (HTTP ${res.status}).`);
         throw new Error(msg);
       }
@@ -77,48 +73,47 @@ export default function VerifyEmailPage() {
     }
   }
 
-async function onResend() {
-  if (loading || cooldown > 0) return;
+  async function onResend() {
+    if (loading || cooldown > 0) return;
 
-  setError(null);
-  setOkMsg(null);
+    setError(null);
+    setOkMsg(null);
 
-  const e_ = email.trim();
-  if (!e_) { setError('Please enter your email.'); return; }
+    const e_ = email.trim();
+    if (!e_) return setError('Please enter your email.');
 
-  try {
-    setLoading(true);
-    const res = await fetch(`${API_URL}/auth/resend-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({  type: OTP_TYPE, target: e_ }), // सिर्फ email भेजा
-    });
+    try {
+      setLoading(true);
+      const res = await fetch('/api/auth/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ type: OTP_TYPE, target: e_ }),
+      });
 
-    let data: any = null;
-    try { data = await res.json(); } catch {}
+      const data = await res.json().catch(() => ({}));
 
-    if (!res.ok || !data?.success) {
-      const msg =
-        data?.message ||
-        (res.status === 429 ? 'Too many requests. Try again later.' :
-         `Failed to resend OTP (HTTP ${res.status}).`);
-      throw new Error(msg);
+      if (!res.ok || data?.success === false) {
+        const msg =
+          data?.message ||
+          (res.status === 429 ? 'Too many requests. Try again later.' :
+           `Failed to resend OTP (HTTP ${res.status}).`);
+        throw new Error(msg);
+      }
+
+      setOkMsg(data?.message || 'OTP sent to your email.');
+      setCooldown(COOLDOWN);
+    } catch (err: any) {
+      setError(err?.message || 'Could not resend OTP.');
+    } finally {
+      setLoading(false);
     }
-
-    setOkMsg(data?.message || 'OTP sent to your email.');
-    setCooldown(COOLDOWN);
-  } catch (err: any) {
-    setError(err?.message || 'Could not resend OTP.');
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
       <main className="w-full max-w-lg">
         <h1 className="text-3xl font-extrabold mb-1">Verify your email</h1>
-        <p className="text-white/70 mb-6">Enter the 6‑digit code we sent to your email.</p>
+        <p className="text-white/70 mb-6">Enter the 6-digit code we sent to your email.</p>
 
         <form className="space-y-5" onSubmit={onVerify} aria-busy={loading}>
           {/* Email */}

@@ -3,21 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION;
-
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail]       = useState('');
-  const [userName, setUserName]       = useState('');
-  const [mobile, setMobile]     = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm]   = useState('');
+  const [fullName, setFullName]   = useState('');
+  const [userName, setUserName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [mobile, setMobile]       = useState('');
+  const [password, setPassword]   = useState('');
+  const [confirm, setConfirm]     = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [okMsg, setOkMsg]     = useState<string | null>(null);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState<string | null>(null);
+  const [okMsg, setOkMsg]         = useState<string | null>(null);
 
   const inputBase =
     'w-full rounded-full border border-white/20 bg-transparent py-3 pl-11 pr-4 text-lg placeholder-white/60 focus:outline-none focus:border-[#F15A2B]';
@@ -25,6 +23,8 @@ export default function RegisterPage() {
   function normalizeMobile(v: string) {
     return v.replace(/\D+/g, '').slice(0, 10);
   }
+  const isEmail = (v: string) => /\S+@\S+\.\S+/.test(v);
+  const isUsername = (v: string) => /^[a-zA-Z0-9._-]{3,}$/.test(v);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,32 +35,34 @@ export default function RegisterPage() {
 
     const m = normalizeMobile(mobile);
 
-    if (!fullName.trim()) { setError('Please enter your full name.'); return; }
-    if (!userName.trim()) { setError('Please enter your username.'); return; }
-    if (!email.trim())     { setError('Please enter your email address.'); return; }
-    if (m.length !== 10)   { setError('Please enter a valid 10-digit mobile number.'); return; }
-    if (!password)         { setError('Password is required.'); return; }
-    if (password !== confirm) { setError('Passwords do not match.'); return; }
+    if (!fullName.trim())        return setError('Please enter your full name.');
+    if (!userName.trim() || !isUsername(userName))
+      return setError('Please enter a valid username (3+ chars).');
+    if (!email.trim() || !isEmail(email))
+      return setError('Please enter a valid email address.');
+    if (m.length !== 10)         return setError('Please enter a valid 10-digit mobile number.');
+    if (!password)               return setError('Password is required.');
+    if (password !== confirm)    return setError('Passwords do not match.');
 
     try {
       setLoading(true);
 
-      const res = await fetch(`${API_URL}/auth/user-register`, {
+      // Always hit our Next API proxy (avoids CORS)
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           email: email.trim(),
           fullName: fullName.trim(),
           userName: userName.trim(),
           mobileNumber: m,
-          hashedPassword: password,
+          hashedPassword: password, // matches your backend contract
         }),
       });
 
-      let data: any = null;
-      try { data = await res.json(); } catch {}
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data?.success) {
+      if (!res.ok || data?.success === false) {
         const msg =
           data?.message ||
           (res.status === 409 ? 'User already exists.' :
@@ -71,7 +73,7 @@ export default function RegisterPage() {
       }
 
       setOkMsg(data?.message || 'Registration successful! Please verify your email.');
-      // OTP verify page पर ले जाएँ
+      // go to OTP/verify page with email prefilled
       setTimeout(() => {
         const q = new URLSearchParams({ email: email.trim() }).toString();
         router.replace(`/verify-email?${q}`);
@@ -106,6 +108,7 @@ export default function RegisterPage() {
               <path d="M6 20a6 6 0 0 1 12 0" />
             </svg>
           </div>
+
           {/* Username */}
           <div className="relative">
             <input
@@ -194,7 +197,7 @@ export default function RegisterPage() {
             </svg>
           </div>
 
-          {/* Messages — same style as login */}
+          {/* Messages */}
           {error && (
             <div className="text-sm rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-red-300">
               {error}
