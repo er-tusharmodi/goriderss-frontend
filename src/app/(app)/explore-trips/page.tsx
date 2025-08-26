@@ -9,8 +9,6 @@ export default function Page() {
   return (
     <main className="bg-slatebg text-white min-h-screen">
       <div className="px-4 sm:px-6 py-6">
-        {/* Client only UI */}
-        {/* @ts-expect-error Server/Client boundary ok */}
         <ExploreClient />
       </div>
     </main>

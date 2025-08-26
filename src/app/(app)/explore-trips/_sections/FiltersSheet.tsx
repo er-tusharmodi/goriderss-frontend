@@ -2,6 +2,13 @@
 
 import type { Filters } from "../types";
 
+// --- Literal options + derived unions
+const DIFFICULTY_OPTIONS = ["Easy", "Moderate", "Hard"] as const;
+type Difficulty = (typeof DIFFICULTY_OPTIONS)[number];
+
+const RIDE_TYPE_OPTIONS = ["ADV", "Roadster", "Cruiser"] as const;
+type RideType = (typeof RIDE_TYPE_OPTIONS)[number];
+
 export default function FiltersSheet({
   open,
   onClose,
@@ -12,7 +19,7 @@ export default function FiltersSheet({
 }: {
   open: boolean;
   onClose: () => void;
-  value: Filters;
+  value: Filters; // expect: { diffs: Difficulty[]; types: RideType[]; ... }
   onChange: (patch: Partial<Filters>) => void;
   onApply: () => void;
   onClear: () => void;
@@ -27,7 +34,9 @@ export default function FiltersSheet({
     >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Filters</h2>
-        <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10" aria-label="Close">✕</button>
+        <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10" aria-label="Close">
+          ✕
+        </button>
       </div>
 
       <div className="mt-3 space-y-4 text-sm overflow-y-auto h-[calc(100vh-100px)] no-scrollbar">
@@ -77,19 +86,19 @@ export default function FiltersSheet({
         </div>
 
         {/* Difficulty */}
-        <CheckGroup
+        <CheckGroup<Difficulty>
           label="Difficulty"
-          options={["Easy", "Moderate", "Hard"]}
+          options={DIFFICULTY_OPTIONS}
           values={value.diffs}
           onToggle={(v) => onChange({ diffs: toggle(value.diffs, v) })}
         />
 
         {/* Ride Type */}
-        <CheckGroup
+        <CheckGroup<RideType>
           label="Ride Type"
-          options={["ADV", "Roadster", "Cruiser"]}
+          options={RIDE_TYPE_OPTIONS}
           values={value.types}
-          onToggle={(v) => onChange({ types: toggle(value.types, v as any) })}
+          onToggle={(v) => onChange({ types: toggle(value.types, v) })}
         />
 
         {/* Max Distance */}
@@ -106,30 +115,38 @@ export default function FiltersSheet({
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <button onClick={onClear} className="rounded-xl px-3 py-2 bg-white/5 border border-border">Clear</button>
-        <button onClick={() => { onApply(); onClose(); }} className="rounded-xl px-3 py-2 bg-accent text-white">Apply</button>
+        <button onClick={onClear} className="rounded-xl px-3 py-2 bg-white/5 border border-border">
+          Clear
+        </button>
+        <button onClick={() => { onApply(); onClose(); }} className="rounded-xl px-3 py-2 bg-accent text-white">
+          Apply
+        </button>
       </div>
     </aside>
   );
 }
 
-function CheckGroup({
+// ---------- Generic CheckGroup that preserves literal unions ----------
+function CheckGroup<T extends string>({
   label,
   options,
   values,
   onToggle,
 }: {
   label: string;
-  options: string[];
-  values: string[];
-  onToggle: (v: string) => void;
+  options: readonly T[];
+  values: T[];
+  onToggle: (v: T) => void;
 }) {
   return (
     <div>
       <div className="text-textmuted mb-1">{label}</div>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => (
-          <label key={opt} className="inline-flex items-center gap-1 bg-white/10 border border-border rounded-full px-2 py-1 cursor-pointer">
+          <label
+            key={opt}
+            className="inline-flex items-center gap-1 bg-white/10 border border-border rounded-full px-2 py-1 cursor-pointer"
+          >
             <input
               type="checkbox"
               checked={values.includes(opt)}
@@ -144,6 +161,7 @@ function CheckGroup({
   );
 }
 
-function toggle<T>(arr: T[], v: T) {
+// ---------- Union-preserving toggle ----------
+function toggle<T extends string>(arr: T[], v: T) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 }
