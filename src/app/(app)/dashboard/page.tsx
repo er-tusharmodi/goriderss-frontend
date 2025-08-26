@@ -9,7 +9,7 @@ const DUMMY_POSTS: Post[] = [ /* …placeholder converted from your HTML… */ ]
 
 export default function DashboardPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       <StoriesStrip items={[
         { id:'1', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s', name:'Rider 1' },
         { id:'2', image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s', name:'Rider 2' },
