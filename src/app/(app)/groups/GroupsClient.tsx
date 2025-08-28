@@ -248,7 +248,7 @@ export default function GroupsClient() {
   return (
     <div className="bg-slatebg text-white min-h-screen">
       {/* Header (sticky) */}
-      <header className="sticky top-0 z-30 bg-slatebg/90 backdrop-blur border-b border-border">
+      <header className="sticky top-0 z-30 bg-slatebg/90 border-b border-border">
         <div className="px-4 sm:px-6 py-4 flex items-center gap-3">
           <div className="text-xl font-semibold">Groups</div>
           <div className="flex-1" />

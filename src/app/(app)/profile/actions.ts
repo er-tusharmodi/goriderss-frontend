@@ -4,9 +4,7 @@
 import { cookies } from 'next/headers';
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION ||
-  process.env.NEXT_PUBLIC_API_BASE ||
-  '/api';
+  process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION || '';
 
 type UpOpts = { method?: string; json?: any; headers?: Record<string, string>; cache?: RequestCache };
 
@@ -171,4 +169,55 @@ export async function getMyProfile(userId?: string): Promise<MappedProfile> {
   };
 
   return profile;
+}
+
+/* ========= FOLLOW / BLOCK: SSR helpers ========= */
+
+export type FollowCounts = {
+  followersCount: number;
+  followingCount: number;
+};
+
+export type FollowStatus = {
+  following: boolean;
+  followedBy: boolean;
+  requested: boolean;
+  iBlocked: boolean;
+  blockedMe: boolean;
+};
+
+/** Prefetch counts for profile header (SSR-friendly) */
+export async function getFollowCountsSSR(userId: string): Promise<FollowCounts> {
+  if (!userId) throw new Error("userId required");
+  const res = await upFetch(`/follows/${userId}/counts`, { method: "GET" });
+  return (res?.data ?? res) as FollowCounts;
+}
+
+/** Prefetch relation status me ↔ user (SSR-friendly) */
+export async function getFollowStatusSSR(userId: string): Promise<FollowStatus> {
+  if (!userId) throw new Error("userId required");
+  const res = await upFetch(`/follows/status/${userId}`, { method: "GET" });
+  return (res?.data ?? res) as FollowStatus;
+}
+
+/** Optional server actions (mutations) — call from Server Components if needed */
+export async function followSSR(userId: string, opts?: { requested?: boolean }) {
+  if (!userId) throw new Error("userId required");
+  const q = opts?.requested ? "?requested=1" : "";
+  await upFetch(`/follows/${userId}${q}`, { method: "POST" });
+}
+
+export async function unfollowSSR(userId: string) {
+  if (!userId) throw new Error("userId required");
+  await upFetch(`/follows/${userId}`, { method: "DELETE" });
+}
+
+export async function blockSSR(userId: string) {
+  if (!userId) throw new Error("userId required");
+  await upFetch(`/blocks/${userId}`, { method: "POST" });
+}
+
+export async function unblockSSR(userId: string) {
+  if (!userId) throw new Error("userId required");
+  await upFetch(`/blocks/${userId}`, { method: "DELETE" });
 }

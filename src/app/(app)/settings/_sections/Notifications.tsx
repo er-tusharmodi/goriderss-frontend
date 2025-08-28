@@ -11,7 +11,7 @@ export default function NotificationsSection({
   setState: React.Dispatch<React.SetStateAction<SettingsState>>;
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
+    <div className="grid gap-4 sm:grid-cols-2">
       <Row
         title="Trip Invites"
         desc="When someone invites you to a trip."
@@ -49,12 +49,7 @@ function Row({
   className?: string;
 }) {
   return (
-    <div
-      className={[
-        "bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between",
-        className ?? "",
-      ].join(" ")}
-    >
+    <div className={["flex items-center justify-between rounded-xl border border-border bg-white/5 p-4", className ?? ""].join(" ")}>
       <div>
         <div className="font-medium">{title}</div>
         <div className="text-sm text-textmuted">{desc}</div>

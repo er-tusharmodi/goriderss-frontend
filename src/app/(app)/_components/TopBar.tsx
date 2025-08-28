@@ -1,13 +1,13 @@
-// app/(app)/dashboard/_components/CreateBox.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 type Noti = { id: string; title: string; subtitle?: string; time: string; read?: boolean };
 
-/* === Small start→destination route glyph (search ke left) === */
+const SEARCH_ROUTE = '/search/users'; // target search page
+
 function RouteGlyph({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -20,10 +20,14 @@ function RouteGlyph({ className = '' }: { className?: string }) {
 
 export default function CreateBox() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const sp = useSearchParams();
+  const pathname = usePathname();
 
-  // ---- Search ----
+  // ---- Search (no auto navigate) ----
+  const [term, setTerm] = useState(sp?.get('q') ?? '');
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // '/' focuses the input (kept as-is)
   useEffect(() => {
     const onSlashFocus = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
@@ -36,7 +40,19 @@ export default function CreateBox() {
     return () => window.removeEventListener('keydown', onSlashFocus);
   }, []);
 
-  // ---- Notifications ----
+  // Sync input when navigating back/forward to a URL having ?q=
+  useEffect(() => {
+    setTerm(sp?.get('q') ?? '');
+  }, [pathname, sp]);
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const v = term.trim();
+    const url = v ? `${SEARCH_ROUTE}?q=${encodeURIComponent(v)}` : SEARCH_ROUTE;
+    router.push(url);
+  }
+
+  // ---- Notifications (unchanged demo data) ----
   const [notis, setNotis] = useState<Noti[]>([
     { id: 'n1', title: 'Udaipur Weekend Sprint', subtitle: 'Karan: “Meet 6am sharp…”', time: '2m', read: false },
     { id: 'n2', title: 'Expense Updated', subtitle: 'Lunch split finalized', time: '25m', read: false },
@@ -64,6 +80,7 @@ export default function CreateBox() {
   }
 
   // ---- Logout ----
+  const [loading, setLoading] = useState(false);
   async function onLogout() {
     if (loading) return;
     try {
@@ -77,25 +94,34 @@ export default function CreateBox() {
 
   return (
     <main className="lg:ml-72">
-      <div className="sticky top-0 z-30 bg-slatebg/90 backdrop-blur border-b border-border">
-        {/* thoda extra space: centered container + wider side padding */}
+      <div className="sticky top-0 z-30 bg-slatebg/90 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
-          {/* Search */}
-          <div className="flex items-center bg-card border border-border rounded-2xl px-3 sm:px-4 py-2.5 flex-1 focus-within:ring-2 focus-within:ring-accent/40">
+          {/* Search -> Enter submits */}
+          <form
+            onSubmit={onSubmit}
+            className="flex items-center bg-card border border-border rounded-2xl px-3 sm:px-4 py-2.5 flex-1 focus-within:ring-2 focus-within:ring-accent/40"
+            role="search"
+            aria-label="Search riders, trips, helpers"
+          >
             <RouteGlyph className="h-5 w-5 mr-2 sm:mr-3 shrink-0" />
             <input
               ref={searchRef}
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
               className="bg-transparent w-full outline-none placeholder:text-textmuted"
               placeholder="Search riders, trips, helpers…"
+              name="q"
+              autoComplete="off"
             />
+            {/* same hint text as before */}
             <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-textmuted bg-white/5 border border-border rounded-md px-2 py-0.5 whitespace-nowrap">
               Press <kbd className="px-1 rounded bg-white/10">/</kbd> to search
             </span>
-          </div>
+          </form>
 
           {/* Right actions */}
           <div className="relative flex items-center gap-2 sm:gap-3">
-            {/* Notifications (unchanged design) */}
+            {/* Notifications */}
             <button
               ref={notiBtnRef}
               title="Notifications"
@@ -155,7 +181,7 @@ export default function CreateBox() {
               </div>
             )}
 
-            {/* Logout — thoda right spacing (no negative margin) */}
+            {/* Logout */}
             <button
               onClick={onLogout}
               title="Log Out"

@@ -119,6 +119,13 @@
     --border: #3B4753;
     --textmuted: #9CA3AF;
     --accent: #F25C2A;
+
+      --gr-primary:#ED562C;
+      --gr-accent:#FD9124;
+      --gr-ink-400:#30455F;
+      --gr-bg-elev:#111A27;
+      --gr-card:#0F1824;
+      --gr-border:#233042;
   }
 
   /* make sure body actually uses theme bg + text */

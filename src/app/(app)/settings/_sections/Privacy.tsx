@@ -11,8 +11,8 @@ export default function PrivacySection({
   setState: React.Dispatch<React.SetStateAction<SettingsState>>;
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
-      <div className="bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between">
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-white/5 p-4">
         <div>
           <div className="font-medium">Show Email on Profile</div>
           <div className="text-sm text-textmuted">Control if others can see your email.</div>
@@ -24,10 +24,10 @@ export default function PrivacySection({
         />
       </div>
 
-      <div className="bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-white/5 p-4">
         <div>
           <div className="font-medium">Show Mobile Number</div>
-          <div className="text-sm text-textmuted">Hide it to keep it private.</div>
+        <div className="text-sm text-textmuted">Hide it to keep it private.</div>
         </div>
         <Toggle
           checked={state.isMobileNumberDisplay}
@@ -36,12 +36,10 @@ export default function PrivacySection({
         />
       </div>
 
-      <div className="bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between sm:col-span-2">
+      <div className="sm:col-span-2 flex items-center justify-between rounded-xl border border-border bg-white/5 p-4">
         <div>
           <div className="font-medium">Show Expenses in Trip Chats</div>
-          <div className="text-sm text-textmuted">
-            If off, only you can see your expense entries.
-          </div>
+          <div className="text-sm text-textmuted">If off, only you can see your expense entries.</div>
         </div>
         <Toggle
           checked={state.isExpensesDisplay}

@@ -13,7 +13,7 @@ export default function SecuritySection({
 }) {
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <FieldLabel>Current Password</FieldLabel>
           <TextInput className="mt-1" type="password" autoComplete="current-password" />
@@ -28,13 +28,13 @@ export default function SecuritySection({
         </label>
       </div>
 
-      <div className="bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-white/5 p-4">
         <div>
           <div className="font-medium">Two-Factor Authentication</div>
           <div className="text-sm text-textmuted">Add an extra layer of security.</div>
         </div>
         <Toggle
-          checked={state.twoFA}
+          checked={!!state.twoFA}
           onChange={(v) => setState((s) => ({ ...s, twoFA: v }))}
           aria-label="Two-Factor Authentication"
         />

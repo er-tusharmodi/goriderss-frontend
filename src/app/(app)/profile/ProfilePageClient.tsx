@@ -9,14 +9,20 @@ import Tabs from './_sections/Tabs';
 import AboutPanel from './_sections/AboutPanel';
 import PostsPanel from './_sections/PostsPanel';
 import GalleryPanel from './_sections/GalleryPanel';
+import FollowActions from './_sections/FollowActions.client';
 
-export default function ProfilePageClient({ profile }: { profile: MappedProfile }) {
+export default function ProfilePageClient({
+  profile,
+  meId,
+}: {
+  profile: MappedProfile;
+  meId?: string | null;
+}) {
   const {
     fullName,
     userName,
     avatarUrl,
     coverImageUrl,
-    bio,
     instagramLink,
     youtubeLink,
     linkedinLink,
@@ -25,23 +31,23 @@ export default function ProfilePageClient({ profile }: { profile: MappedProfile 
     email,
     mobileNumber,
     address,
-    dob,          // kept in case your AboutPanel ever needs it later
-    sex,          // kept in case your AboutPanel ever needs it later
-    bloodGroup,   // kept in case your AboutPanel ever needs it later
     bikesList,
     bikes,
+    bio,
   } = profile;
 
-  // Prefer the already-mapped flat bikes; otherwise map from bikesList.list
   const bikesForAbout =
-    (Array.isArray(bikes) && bikes.length)
+    Array.isArray(bikes) && bikes.length
       ? bikes
-      : (Array.isArray(bikesList?.list)
-          ? bikesList!.list.map((b) => ({ name: b.bikeName || '—', meta: b.bikeDetails || '' }))
-          : []);
+      : Array.isArray(bikesList?.list)
+      ? bikesList!.list.map((b) => ({ name: b.bikeName || '—', meta: b.bikeDetails || '' }))
+      : [];
+
+  const profileUserId = (profile as any).id || (profile as any)._id || '';
+  const isOwner = !!meId && !!profileUserId && meId === profileUserId;
 
   return (
-    <div className="max-w-10xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6 space-y-6">
       {/* ===== Header + Stats ===== */}
       <section className="bg-card border border-border rounded-2xl overflow-hidden">
         <ProfileCoverHeader
@@ -67,6 +73,13 @@ export default function ProfilePageClient({ profile }: { profile: MappedProfile 
               : undefined,
             bio: bio || '',
           }}
+          canEdit={isOwner}
+          /* 👇 RIGHT SIDE ACTIONS inside header (next to socials) */
+          actions={
+            !isOwner && profileUserId ? (
+              <FollowActions profileUserId={profileUserId} />
+            ) : null
+          }
         />
 
         <ProfileStats
@@ -82,19 +95,17 @@ export default function ProfilePageClient({ profile }: { profile: MappedProfile 
       {/* ===== Trips ===== */}
       <section className="bg-card border border-border rounded-2xl">
         <TripsSection
-          trips={
-            (trips || []).map((trip) => ({
-              ...trip,
-              bike:
-                typeof trip.bike === 'object' && trip.bike !== null
-                  ? {
-                      ...trip.bike,
-                      bikeName: trip.bike.bikeName ?? '—',
-                      bikeDetails: trip.bike.bikeDetails ?? '',
-                    }
-                  : trip.bike
-            }))
-          }
+          trips={(trips || []).map((trip) => ({
+            ...trip,
+            bike:
+              typeof trip.bike === 'object' && trip.bike !== null
+                ? {
+                    ...trip.bike,
+                    bikeName: trip.bike.bikeName ?? '—',
+                    bikeDetails: trip.bike.bikeDetails ?? '',
+                  }
+                : trip.bike,
+          }))}
         />
       </section>
 

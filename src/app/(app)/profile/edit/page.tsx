@@ -7,7 +7,7 @@ import { getUserFullDetails, listBikesAction, listTripsAction } from './actions'
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-/** Backend origin निकालो: http://localhost:5000/api/v1 -> http://localhost:5000 */
+
 function getBackendOrigin() {
   const full = process.env.NEXT_PUBLIC_API_URL_CURRENT_VERSION || '';
   if (!full) return '';

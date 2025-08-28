@@ -12,15 +12,13 @@ export default function ChatSection({
   setState: React.Dispatch<React.SetStateAction<SettingsState>>;
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
+    <div className="grid gap-4 sm:grid-cols-2">
       <label className="block">
         <FieldLabel>Default media quality</FieldLabel>
         <Select
           className="mt-1"
           value={(state as any).chatMedia ?? "Auto"}
-          onChange={(e) =>
-            setState((s) => ({ ...s, chatMedia: e.target.value } as any))
-          }
+          onChange={(e) => setState((s) => ({ ...s, chatMedia: e.target.value } as any))}
         >
           <option className="bg-slatebg">Auto</option>
           <option className="bg-slatebg">High</option>
@@ -33,24 +31,20 @@ export default function ChatSection({
         <Select
           className="mt-1"
           value={(state as any).readReceipts ?? "Enabled"}
-          onChange={(e) =>
-            setState((s) => ({ ...s, readReceipts: e.target.value } as any))
-          }
+          onChange={(e) => setState((s) => ({ ...s, readReceipts: e.target.value } as any))}
         >
           <option className="bg-slatebg">Enabled</option>
           <option className="bg-slatebg">Disabled</option>
         </Select>
       </label>
 
-      <div className="bg-white/5 border border-border rounded-xl p-4 flex items-center justify-between sm:col-span-2">
+      <div className="sm:col-span-2 flex items-center justify-between rounded-xl border border-border bg-white/5 p-4">
         <div>
-          <div className="font-medium">Auto-download media on Wi-Fi</div>
-          <div className="text-sm text-textmuted">
-            Photos & videos will download automatically.
-          </div>
+          <div className="font-medium">Auto-download on Wi-Fi</div>
+          <div className="text-sm text-textmuted">Media will auto-download when you are on Wi-Fi.</div>
         </div>
         <Toggle
-          checked={state.wifiAutoDl}
+          checked={!!state.wifiAutoDl}
           onChange={(v) => setState((s) => ({ ...s, wifiAutoDl: v }))}
           aria-label="Auto-download on Wi-Fi"
         />
